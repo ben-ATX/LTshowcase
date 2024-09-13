@@ -20,3 +20,7 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.search-result-row {
+    vertical-align: middle;
+}

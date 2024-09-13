@@ -1,21 +1,35 @@
+using LTshowcase.Pages.Products.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
+RegisterServices(builder);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-}
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
+ConfigureApplication(app);
 
 app.Run();
+
+static void RegisterServices(WebApplicationBuilder builder)
+{
+    builder.Services.AddRazorPages();
+    builder.Services.AddHttpClient<IProductClient, ExternalApiProductClient>();
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+}
+
+static void ConfigureApplication(WebApplication app)
+{
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Error");
+    }
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    app.UseAuthorization();
+
+    app.MapRazorPages();
+
+    app.MapGet("/", () => Results.Redirect("/Products/Index"));
+}

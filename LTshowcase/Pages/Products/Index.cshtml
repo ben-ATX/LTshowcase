@@ -1,0 +1,52 @@
+﻿@page
+@model Index
+
+<div class="row">
+    <div class="column col-lg-6">
+        <form asp-page="Index" method="get">
+            <H5>Search for a product</H5>
+            <div class="input-group">
+                <input asp-for="@Model.Query.SearchTerm" type="search" data-val="true" class="form-control border-right-0" placeholder="Search by term like 'laptop' or by product ID like '1'" value="@Model.Query.SearchTerm">
+                <span class="input-group-append">
+                    <button type="submit" class="input-group-text d-inline-flex bg-primary text-white"><svg bootstrap-icon="Search" width="24" height="24" aria-label="Search"></svg></button>
+                </span>
+            </div>
+        </form>
+    </div>
+    <div class="column col-lg-6 d-flex align-items-end align-text-bottom">
+        <span class="d-block w-100 text-end">Page @(Model.Data.Skip + 1) of @((int)Math.Ceiling(Model.Data.Total / (double)Model.Data.Limit))</span>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="column">
+        @if (Model.Data.Products.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.Data.Products)
+                    {
+                        <tr class="search-result-row">
+                            <td><img src="@product.Thumbnail" alt="Thumbnail" style="width: 100px;" /></td>
+                            <td><a asp-page="Details" asp-route-Id="@product.Id">@product.Title</a></td>
+                            <td>@product.Price.ToString("C")</td>
+                            <td>@product.Description</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.Query.SearchTerm))
+        {
+            <p>No products were found using search term <strong>@Model.Query.SearchTerm</strong></p>
+        }
+    </div>
+</div>
