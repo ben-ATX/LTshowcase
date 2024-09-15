@@ -77,8 +77,6 @@ public class SliceFixture
             {
                 SearchTerm = query.SearchTerm,
                 Products = results,
-                Limit = query.Limit,
-                Skip = query.Skip,
                 Total = results.Count()
             };
             return Task.FromResult(searchResult ?? default);

@@ -17,7 +17,7 @@ public class IndexTests(SliceFixture sliceFixture)
             var products = Enumerable.Repeat(new Product(), productsAdded);
             repo.Add(products);
 
-            var query = new SearchQuery();
+            var query = new SearchQuery { PageSize = productsAdded };
             return await mediator.Send(query, default);
         });
 

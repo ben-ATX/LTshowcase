@@ -5,7 +5,7 @@ namespace LTshowcase.Pages.Products.Services;
 public interface IProductClient
 {
     Task<Product?> GetById(int id, CancellationToken token);
-                 
+
     Task<SearchResult?> Search(SearchQuery query, CancellationToken token);
 }
 public class ExternalApiProductClient : IProductClient
@@ -20,9 +20,16 @@ public class ExternalApiProductClient : IProductClient
     public async Task<Product?> GetById(int id, CancellationToken token) =>
         await Get<Product>(id.ToString(), token);
 
-    public async Task<SearchResult?> Search(SearchQuery query, CancellationToken token) => 
-        await Get<SearchResult>($"search?q={query.SearchTerm}&skip={query.Skip}&limit={query.Limit}", token);
-    
+    public async Task<SearchResult?> Search(SearchQuery query, CancellationToken token)
+    {
+        var skip = (query.CurrentPage - 1) * query.PageSize;
+        var result = await Get<SearchResult>($"search?q={query.SearchTerm}&skip={skip}&limit={query.PageSize}", token);
+
+        result.CurrentPage = (int)Math.Ceiling(result.Skip / (double)query.PageSize) + 1;
+        result.TotalPages = (int)Math.Ceiling(Math.Max(result.Total, 1) / (double)query.PageSize);// result.CalculateTotalPages(query.PageSize);
+
+        return result;
+    }
     private async Task<T?> Get<T>(string requestUri, CancellationToken token) where T : class
     {
         var response = await _httpClient.GetAsync(requestUri, token);
@@ -47,8 +54,10 @@ public record Product
 public record SearchQuery : IRequest<SearchResult>
 {
     public string SearchTerm { get; set; } = "";
-    public int Skip { get; set; }
-    public int Limit { get; set; }
+
+    public int CurrentPage { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
 }
 
 public record SearchResult
@@ -57,5 +66,8 @@ public record SearchResult
     public int Skip { get; set; }
     public int Limit { get; set; }
     public int Total { get; set; }
+    public int CurrentPage { get; set; } = 1;
+    public int TotalPages { get; set; } = 1;
+
     public IEnumerable<Product> Products { get; set; } = [];
 }

@@ -6,7 +6,7 @@
         <form asp-page="Index" method="get">
             <H5>Search for a product</H5>
             <div class="input-group">
-                <input asp-for="@Model.Query.SearchTerm" type="search" data-val="true" class="form-control border-right-0" placeholder="Search by term like 'laptop' or by product ID like '1'" value="@Model.Query.SearchTerm">
+                <input asp-for="@Model.Query.SearchTerm" type="search" class="form-control border-right-0" placeholder="Search by term like 'laptop' or by product ID like '1'" />
                 <span class="input-group-append">
                     <button type="submit" class="input-group-text d-inline-flex bg-primary text-white"><svg bootstrap-icon="Search" width="24" height="24" aria-label="Search"></svg></button>
                 </span>
@@ -14,7 +14,7 @@
         </form>
     </div>
     <div class="column col-lg-6 d-flex align-items-end align-text-bottom">
-        <span class="d-block w-100 text-end">Page @(Model.Data.Skip + 1) of @((int)Math.Ceiling(Model.Data.Total / (double)Model.Data.Limit))</span>
+        <span class="d-block w-100 text-end">Page @Model.Data.CurrentPage of @Model.Data.TotalPages</span>
     </div>
 </div>
 <hr />
@@ -50,3 +50,28 @@
         }
     </div>
 </div>
+@if (Model.Data.TotalPages != 1)
+{
+    <div class="row">
+        <div class="column">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item @(Model.Data.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-route-searchTerm="@Model.Query.SearchTerm" asp-route-currentPage="@(Model.Data.CurrentPage - 1)">Previous</a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.Data.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.Data.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" asp-route-searchTerm="@Model.Query.SearchTerm" asp-route-currentPage="@(i)">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.Data.CurrentPage == Model.Data.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-route-searchTerm="@Model.Query.SearchTerm" asp-route-currentPage="@(Model.Data.CurrentPage + 1)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+}

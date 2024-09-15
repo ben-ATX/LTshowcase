@@ -29,23 +29,33 @@ public class ProductClientTests
         result.Title.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Should_return_all_products_for_default_search()
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 30)]
+    [InlineData(1, 1000)]
+    [InlineData(2, 30)]
+    public async Task Should_return_products_by_page_according_to_page_size(int page, int pageSize)
     {
-        var query = new SearchQuery();
+        var query = new SearchQuery { CurrentPage = page, PageSize = pageSize};
         var result = await _productService.Search(query, default);
 
         result.Should().NotBeNull();
 
+        result.CurrentPage.Should().Be(page);
+
         var totalProducts = result.Products.Count();
-        totalProducts.Should().BeGreaterThan(50);
-        result.Total.Should().Be(totalProducts);
+        if (pageSize < result.Total)
+            totalProducts.Should().Be(pageSize);
+        else
+            totalProducts.Should().Be(result.Total);
+        
+        result.Total.Should().BeGreaterThan(50);
     }
 
     [Fact]
     public async Task Should_find_product_by_search_term()
     {
-        var query = new SearchQuery { SearchTerm = "laptop" };
+        var query = new SearchQuery { SearchTerm = "laptop", PageSize = 1000 };
         var result = await _productService.Search(query, default);
 
         result.Should().NotBeNull();
